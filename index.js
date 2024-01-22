@@ -2,8 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const { config } = require('dotenv');
 const client = require('./utils/db/index.js');
-
+const authRoutes = require('./routes/auth.route.js');
 config();
+const bcrypt = require('bcryptjs');
 const app = express();
 const port = process.env.PORT || 5000;
 app.use(express.json());
@@ -13,6 +14,7 @@ app.use(cors());
 client.connect();
  
 // app.use("/api/employees", employeeRoutes);
+app.use("/api/auth", authRoutes);
 app.get('/users', (req, res)=>{
     client.query(`Select * from testings`, (err, result)=>{
         if(!err){
@@ -37,6 +39,7 @@ app.post('/users', (req, res)=> {
     })
     client.end;
 })
+ 
 app.get('/', (req, res) => {
     res.send('DPAS server is running');
   });
