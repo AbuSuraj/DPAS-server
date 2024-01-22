@@ -54,3 +54,9 @@ exports.login = (req, res) => {
         .json(others);
     });
   };
+  exports.logout = (req, res) => {
+    res.clearCookie("accessToken",{
+      secure:true,
+      sameSite:"none"
+    }).status(200).json("User has been logged out.")
+  };
