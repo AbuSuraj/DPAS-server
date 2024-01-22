@@ -1,20 +1,17 @@
 const express = require('express');
-// const emailRoutes = require('./routes/email.route.js');
 const cors = require('cors');
-// const cookieParser = require('cookie-parser');
 const { config } = require('dotenv');
 const client = require('./utils/db/index.js');
 
 config();
 const app = express();
-
+const port = process.env.PORT || 5000;
 app.use(express.json());
  
 app.use(express.json());
 app.use(cors());
 client.connect();
-  
-// app.use(cookieParser());
+ 
 // app.use("/api/employees", employeeRoutes);
 app.get('/users', (req, res)=>{
     client.query(`Select * from testings`, (err, result)=>{
@@ -40,6 +37,9 @@ app.post('/users', (req, res)=> {
     })
     client.end;
 })
-app.listen(5000, () => {
+app.get('/', (req, res) => {
+    res.send('DPAS server is running');
+  });
+app.listen(port, () => {
     console.log("API working!");
   });
