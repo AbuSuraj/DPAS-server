@@ -3,6 +3,7 @@ const cors = require('cors');
 const { config } = require('dotenv');
 const client = require('./utils/db/index.js');
 const authRoutes = require('./routes/auth.route.js');
+const appointmentsRoutes = require('./routes/appointment.route.js');
 config();
 const bcrypt = require('bcryptjs');
 const app = express();
@@ -17,6 +18,7 @@ client.connect();
  
 // app.use("/api/employees", employeeRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/appointments", appointmentsRoutes);
 app.get('/users', (req, res)=>{
     client.query(`Select * from testings`, (err, result)=>{
         if(!err){
