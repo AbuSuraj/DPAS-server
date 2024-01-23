@@ -26,12 +26,12 @@ exports.createAppointment = (req, res) => {
 
   // Insert appointment information into the Appointments table
   const createAppointmentQuery = `
-    INSERT INTO Appointments (problem, department, doctor, arrival_date, arrival_time, createdAt)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO Appointments (problem, department, doctor, arrival_date, arrival_time, createdAt, status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING id, createdAt;
   `;
 
-  const appointmentValues = [problem, department, doctor, arrival_date, arrival_time, new Date()];
+  const appointmentValues = [problem, department, doctor, arrival_date, arrival_time, new Date(), "Submitted"];
 
 
   client.query(createAppointmentQuery, appointmentValues, (err, appointmentResult) => {
