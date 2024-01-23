@@ -82,3 +82,47 @@ exports.createAppointment = (req, res) => {
     });
   });
 };
+
+exports.appointmentLists = (req, res) =>{
+    const getAppointmentsQuery = `
+    SELECT
+      appointments.id AS appointment_id,
+      appointments.problem,
+      appointments.department,
+      appointments.doctor,
+      appointments.arrival_date,
+      appointments.arrival_time,
+      appointments.createdAt,
+      appointments.status,
+      patients.id AS patient_id,
+      patients.patient_name_english,
+      patients.patient_name_bangla,
+      patients.patient_father_name_english,
+      patients.patient_father_name_bangla,
+      patients.patient_mother_name_english,
+      patients.patient_mother_name_bangla,
+      patients.present_address,
+      patients.permanent_address,
+      patients.mobile_number,
+      patients.email,
+      patients.nid_or_birth_certificate_no,
+      patients.sex,
+      patients.age,
+      patients.weight
+    FROM
+       appointments
+    INNER JOIN
+       patients ON appointments.id = patients.appointment_id;
+  `;
+
+  client.query(getAppointmentsQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    const appointments = result.rows;
+    return res.status(200).json({ appointments });
+  });
+
+}
