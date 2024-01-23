@@ -1,6 +1,6 @@
 const client = require('../utils/db/index.js');
 
-// Controller function to create a new appointment
+
 exports.createAppointment = (req, res) => {
   const {
     problem,
@@ -26,12 +26,13 @@ exports.createAppointment = (req, res) => {
 
   // Insert appointment information into the Appointments table
   const createAppointmentQuery = `
-    INSERT INTO Appointments (problem, department, doctor, arrival_date, arrival_time)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING id;
+    INSERT INTO Appointments (problem, department, doctor, arrival_date, arrival_time, createdAt)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, createdAt;
   `;
 
-  const appointmentValues = [problem, department, doctor, arrival_date, arrival_time];
+  const appointmentValues = [problem, department, doctor, arrival_date, arrival_time, new Date()];
+
 
   client.query(createAppointmentQuery, appointmentValues, (err, appointmentResult) => {
     if (err) {
@@ -39,7 +40,7 @@ exports.createAppointment = (req, res) => {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
 
-    const appointmentId = appointmentResult.rows[0].id;
+    const { id, createdat } = appointmentResult.rows[0];
  
     // inserting patient info. into patinets table with appointment_id
     const createPatientQuery = `
@@ -51,7 +52,7 @@ exports.createAppointment = (req, res) => {
     `;
 
     const patientValues = [
-      appointmentId,
+        id,
       patient_name_english,
       patient_name_bangla,
       patient_father_name_english,
@@ -74,7 +75,10 @@ exports.createAppointment = (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
       }
 
-      return res.status(201).json({ message: 'Appointment created successfully' });
+      return res.status(201).json({ message: 'Appointment created successfully',  appointment: {
+        id,
+        createdat 
+      } });
     });
   });
 };
