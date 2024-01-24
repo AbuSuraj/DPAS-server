@@ -83,8 +83,18 @@ exports.createAppointment = (req, res) => {
   });
 };
 
-exports.appointmentLists = (req, res) =>{
-    const getAppointmentsQuery = `
+exports.appointmentLists = async (req, res) =>{
+ try {
+  // couting total appointments
+  const countAppointmentsQuery = 'SELECT COUNT(*) FROM appointments;';
+  const countResult = await client.query(countAppointmentsQuery);
+  const totalAppointments = parseInt(countResult.rows[0].count, 10);
+
+
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 5;
+  const offset = (page -1) * pageSize; 
+  const getAppointmentsQuery = `
     SELECT
       appointments.id AS appointment_id,
       appointments.problem,
@@ -112,17 +122,26 @@ exports.appointmentLists = (req, res) =>{
     FROM
        appointments
     INNER JOIN
-       patients ON appointments.id = patients.appointment_id;
+       patients ON appointments.id = patients.appointment_id
+       ORDER BY appointments.createdat DESC
+       LIMIT $1 OFFSET $2;
   `;
-
-  client.query(getAppointmentsQuery, (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-
-    const appointments = result.rows;
-    return res.status(200).json({ appointments });
-  });
-
+const values = [pageSize, offset];
+const result = await client.query(getAppointmentsQuery, values);
+  
+ const appointments = result.rows;
+  
+ return res.status(200).json({
+  totalAppointments, 
+  appointments, 
+  message: 'Success'
+ });
+} catch(error){
+  console.error(error);
+  return res.status(500).json({
+    totalAppointments:0,
+    appointments:[],
+    message: 'Error Internal Server Error'
+  })
+}
 }
