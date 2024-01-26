@@ -28,7 +28,7 @@ exports.register = (req, res) => {
   });
 };
 exports.login = (req, res) => {
-    const q = 'SELECT * FROM users WHERE userId = $1';
+    const q = 'SELECT * FROM users WHERE userid = $1';
   
     client.query(q, [req.body.userId], (err, data) => {
       if (err) return res.status(500).json(err);
