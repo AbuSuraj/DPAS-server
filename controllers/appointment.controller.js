@@ -95,6 +95,9 @@ exports.appointmentLists = async (req, res) =>{
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 5;
   const offset = (page -1) * pageSize; 
+  const searchQuery = req.query.q || '';  
+
+  
   const getAppointmentsQuery = `
     SELECT
       appointments.id AS appointment_id,
@@ -106,15 +109,23 @@ exports.appointmentLists = async (req, res) =>{
       appointments.createdAt,
       appointments.status,
       patients.id AS patient_id
-    
     FROM
-       appointments
+      appointments
     INNER JOIN
-       patients ON appointments.id = patients.appointment_id
-       ORDER BY appointments.createdat DESC
-       LIMIT $1 OFFSET $2;
+      patients ON appointments.id = patients.appointment_id
+    WHERE
+      appointments.problem ILIKE $1 OR
+      appointments.department ILIKE $1 OR
+      appointments.doctor ILIKE $1 OR
+      patients.patient_name_english ILIKE $1 OR
+      patients.patient_name_bangla ILIKE $1 OR
+      appointments.id::TEXT ILIKE $1 
+    ORDER BY
+      appointments.createdat DESC
+    LIMIT $2 OFFSET $3;
   `;
-const values = [pageSize, offset];
+
+  const values = [`%${searchQuery}%`, pageSize, offset];
 const result = await client.query(getAppointmentsQuery, values);
   
  const appointments = result.rows;
