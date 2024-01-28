@@ -2,6 +2,7 @@ const client = require('../utils/db/index.js');
 
 
 exports.createAppointment = (req, res) => {
+  console.log(req.body)
   const {
     problem,
     department,
@@ -104,21 +105,8 @@ exports.appointmentLists = async (req, res) =>{
       appointments.arrival_time,
       appointments.createdAt,
       appointments.status,
-      patients.id AS patient_id,
-      patients.patient_name_english,
-      patients.patient_name_bangla,
-      patients.patient_father_name_english,
-      patients.patient_father_name_bangla,
-      patients.patient_mother_name_english,
-      patients.patient_mother_name_bangla,
-      patients.present_address,
-      patients.permanent_address,
-      patients.mobile_number,
-      patients.email,
-      patients.nid_or_birth_certificate_no,
-      patients.sex,
-      patients.age,
-      patients.weight
+      patients.id AS patient_id
+    
     FROM
        appointments
     INNER JOIN
@@ -145,3 +133,59 @@ const result = await client.query(getAppointmentsQuery, values);
   })
 }
 }
+exports.getAppointmentDetails = async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
+    console.log(appointmentId)
+    const getAppointmentQuery = `
+      SELECT
+        appointments.id AS appointment_id,
+        appointments.problem,
+        appointments.department,
+        appointments.doctor,
+        appointments.arrival_date,
+        appointments.arrival_time,
+        appointments.createdAt AS appointment_created_at,
+        appointments.status,
+        patients.id AS patient_id,
+        patients.patient_name_english,
+        patients.patient_name_bangla,
+        patients.patient_father_name_english,
+        patients.patient_father_name_bangla,
+        patients.patient_mother_name_english,
+        patients.patient_mother_name_bangla,
+        patients.present_address,
+        patients.permanent_address,
+        patients.mobile_number,
+        patients.email,
+        patients.nid_or_birth_certificate_no,
+        patients.sex,
+        patients.age,
+        patients.weight
+      FROM
+        appointments
+      INNER JOIN
+        patients ON appointments.id = patients.appointment_id
+      WHERE
+        appointments.id = $1;
+    `;
+
+    const result = await client.query(getAppointmentQuery, [appointmentId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+
+    const appointmentDetails = result.rows[0];
+
+    return res.status(200).json({
+      appointmentDetails,
+      message: 'Success',
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: 'Error: Internal Server Error',
+    });
+  }
+};
