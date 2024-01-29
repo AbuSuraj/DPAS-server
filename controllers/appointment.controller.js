@@ -2,7 +2,7 @@ const client = require('../utils/db/index.js');
 
 
 exports.createAppointment = (req, res) => {
-  console.log(req.body)
+  // console.log(req.body)
   const {
     problem,
     department,
@@ -205,6 +205,7 @@ exports.updateAppointment = async (req, res) => {
   try {
     const { id } = req.params;
     // console.log(id)
+    // console.log(req.body)
     const {
       problem,
       department,
