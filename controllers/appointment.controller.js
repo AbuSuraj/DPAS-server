@@ -211,7 +211,7 @@ exports.updateAppointment = async (req, res) => {
       doctor,
       arrival_date,
       arrival_time,
-      // status,  
+      status,  
       patient_name_english,
       patient_name_bangla,
       patient_father_name_english,
@@ -239,13 +239,13 @@ exports.updateAppointment = async (req, res) => {
         department = $2,
         doctor = $3,
         arrival_date = $4,
-        arrival_time = $5
-        WHERE id = $6
-        RETURNING id;
-        `;
-        // status = $6
+        arrival_time = $5,
+        status = $6
+      WHERE id = $7
+      RETURNING id;
+    `;
 
-    const appointmentValues = [problem, department, doctor, arrival_date, arrival_time, id];
+    const appointmentValues = [problem, department, doctor, arrival_date, arrival_time, status, id];
 
     const appointmentResult = await client.query(updateAppointmentQuery, appointmentValues);
 
